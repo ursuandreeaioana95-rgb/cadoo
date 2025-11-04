@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mesaj personalizat</title>
+  <style>
+    html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;}
+    .wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;text-align:center;background:linear-gradient(135deg,#f8f0ff,#fff7f0);}
+    h1{font-size:2rem;margin:0 0 12px;}
+    p.msg{font-size:1.1rem;color:#333;max-width:760px;}
+    .play{
+      margin-top:18px;
+      padding:14px 20px;border-radius:12px;border:0;font-size:1.05rem;
+      background:#6b46c1;color:white;box-shadow:0 6px 20px rgba(107,70,193,0.18);
+      cursor:pointer;
+    }
+    .credit{position:fixed;bottom:10px;font-size:0.8rem;color:#666;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 id="title">Un mesaj pentru tine</h1>
+    <p class="msg" id="message">Bun venit — apasă play pentru a asculta melodia.</p>
+    <button class="play" id="playBtn">Play ▶</button>
+    <audio id="bgAudio" loop preload="auto">
+      <source src="melodie.mp3" type="audio/mpeg">
+      <!-- Dacă vrei, pune aici și o versiune .ogg ca fallback -->
+    </audio>
+  </div>
+  <div class="credit">Scanează codul QR pentru a deschide această pagină.</div>
+
+  <script>
+    // ia mesajul din query param ?msg=...
+    function getParam(name){
+      const url = new URL(location.href);
+      return url.searchParams.get(name);
+    }
+    const raw = getParam('msg');
+    if(raw){
+      // decodeURIComponent în caz că e codificat
+      const text = decodeURIComponent(raw.replace(/\+/g,' '));
+      document.getElementById('message').textContent = text;
+      // opțional schimbă și titlul
+      document.getElementById('title').textContent = text.split('\n')[0].slice(0,50);
+    }
+
+    const audio = document.getElementById('bgAudio');
+    const btn = document.getElementById('playBtn');
+
+    // Play / Pause — browserul necesită interacțiune pentru a porni sunetul
+    btn.addEventListener('click', async () => {
+      if(audio.paused){
+        try{
+          await audio.play();
+          btn.textContent = 'Pause ⏸';
+        }catch(e){
+          alert('Browserul a blocat redarea automată. Încearcă din nou sau click pe ecran.');
+        }
+      } else {
+        audio.pause();
+        btn.textContent = 'Play ▶';
+      }
+    });
+
+    // Daca vrei auto-play muted fallback:
+    // window.addEventListener('load', () => { audio.muted=true; audio.play().then(()=>{ audio.muted=false }).catch(()=>{}); });
+
+  </script>
+</body>
+</html>
